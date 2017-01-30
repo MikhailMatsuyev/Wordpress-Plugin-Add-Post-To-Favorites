@@ -3,8 +3,8 @@
 /*
 Plugin Name: Добавление статей в Избранное
 Description: Плагин добавляет для пользователей ссылку к статьям, позволяющую добавить статью в список избранных статей
-Author: Андрей
-Plugin URI: http://wms.ru
+Author: Михаил
+Plugin URI: 
 Version: 1.0
 */
 
@@ -12,3 +12,4 @@ Version: 1.0
 require __DIR__ . '/functions.php';
 
 add_filter('the_content', 'mm_favorites_content');
+add_action('wp_enqueue_scripts', 'mm_favorites_scripts');
