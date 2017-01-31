@@ -13,3 +13,4 @@ require __DIR__ . '/functions.php';
 
 add_filter('the_content', 'mm_favorites_content');
 add_action('wp_enqueue_scripts', 'mm_favorites_scripts');
+add_action('wp_ajax_mm_test', 'wp_ajax_mm_test');

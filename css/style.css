@@ -11,6 +11,6 @@ p.mm-favorites-link a:hover{
 	
 }
 
-.mm-favorites-link {
-	color: red;
+.mm-favorites-hidden{
+	display: none;
 }
