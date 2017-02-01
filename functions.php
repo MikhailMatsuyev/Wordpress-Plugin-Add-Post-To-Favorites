@@ -9,6 +9,13 @@ function mm_favorites_content($content)
 {
 	if(!is_single() || !is_user_logged_in()) return $content;
 	$img_src=plugins_url('img/loader.gif', __FILE__);
+
+	global $post;
+	if(mm_is_favorites($post->ID)){
+		return '<p class="mm-favorites-link"><a href ="#"> Удалить из Избранного</a></p>'.$content;
+	}
+
+
 	return '<p class="mm-favorites-link"><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span><a href = "#">Добавить в избранное</a></p>' . $content;
 }
 
@@ -40,13 +47,41 @@ function mm_favorites_scripts()
 }
 
 //action fo handle ajax
+//returns answer to ajax
 function wp_ajax_mm_test()
 {
 	//Проверяем на совпадение секретной строки после AJAX запроса на сервер
 	if(!wp_verify_nonce($_POST['security'], 'mm-favorites')){
 		wp_die('Ошибка безопасности');
 	}
-	echo $_POST['postId'];
+	$post_id = (int)$_POST['postId'];
+	$user = wp_get_current_user();
+
+	//Если в таблице в БД есть информация о добавленной статье, 
+	//то программа завершит работу
+	if(mm_is_favorites($post_id)) wp_die();
+
+	//add_user_meta() - добавить в таблицу wordpress.wp_usermeta  к-л данные о пользователе:
+	//2(user_id) 	mm_favotites(meta_key)-переменная 	6(meta_value)-id статьи
+	if (add_user_meta($user->ID, 'mm_favotites', $post_id)){
+		wp_die('Добав');
+	};
 	wp_die('Запрос завершен');
 
+}
+
+//Проверяем, есть ли уже данные о избранной статье для конкретного юзера в 
+//wordpress.wp_usermeta
+function mm_is_favorites($post_id){
+	$user = wp_get_current_user();
+	//get_user_meta()-Получить значение данных пользователя (mm_favotites) 
+	//по его id и названию переменной 
+	//из таблицы wordpress.wp_usermeta, т.е. получить значение переменной mm_favotites=
+	$favorites = get_user_meta($user->ID, 'mm_favotites');
+
+	foreach ($favorites as $favorite) {
+		if($favorite==$post_id) return true;
+	}
+
+	return false;
 }
