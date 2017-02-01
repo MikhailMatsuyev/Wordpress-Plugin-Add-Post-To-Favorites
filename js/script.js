@@ -1,6 +1,8 @@
 jQuery(document).ready(function($){
      //alert('ok'); //for test includinf Jquery
      $('.mm-favorites-link a').click(function(e){
+          //Здесь data('action')== data-action ="del" или data-action ="add"
+          var action = $(this).data('action');
 
      	//alert(mmFavorites.url);
 
@@ -12,7 +14,8 @@ jQuery(document).ready(function($){
      		data:
      		{
      			security:mmFavorites.nonce,
-     			action: 'mm_test',
+     			action: 'mm_'+action,//action - здесь переменная var action = $(this).data('action'); Приходит из 
+                    // <a data-action ="del" или <a data-action ="add" functions.php (Для избежания дублирования кода)
      			postId: mmFavorites.postId
      		},
      		beforeSend: function(){

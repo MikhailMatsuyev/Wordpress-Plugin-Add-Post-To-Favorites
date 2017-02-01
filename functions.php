@@ -12,11 +12,11 @@ function mm_favorites_content($content)
 
 	global $post;
 	if(mm_is_favorites($post->ID)){
-		return '<p class="mm-favorites-link"><a href ="#"> Удалить из Избранного</a></p>'.$content;
+		return '<p class="mm-favorites-link"><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span><a data-action ="del" href = "#">Удалить из избранного</a></p>' . $content;
 	}
 
 
-	return '<p class="mm-favorites-link"><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span><a href = "#">Добавить в избранное</a></p>' . $content;
+	return '<p class="mm-favorites-link"><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span><a data-action ="add" href = "#">Добавить в избранное</a></p>' . $content;
 }
 
 function mm_favorites_scripts()
@@ -48,7 +48,7 @@ function mm_favorites_scripts()
 
 //action fo handle ajax
 //returns answer to ajax
-function wp_ajax_mm_test()
+function wp_ajax_mm_add()
 {
 	//Проверяем на совпадение секретной строки после AJAX запроса на сервер
 	if(!wp_verify_nonce($_POST['security'], 'mm-favorites')){
@@ -64,11 +64,34 @@ function wp_ajax_mm_test()
 	//add_user_meta() - добавить в таблицу wordpress.wp_usermeta  к-л данные о пользователе:
 	//2(user_id) 	mm_favotites(meta_key)-переменная 	6(meta_value)-id статьи
 	if (add_user_meta($user->ID, 'mm_favotites', $post_id)){
-		wp_die('Добав');
+		wp_die('Пост добавлен в избранное!');
 	};
 	wp_die('Запрос завершен');
 
 }
+
+function wp_ajax_mm_del()
+{
+	//Проверяем на совпадение секретной строки после AJAX запроса на сервер
+	if(!wp_verify_nonce($_POST['security'], 'mm-favorites')){
+		wp_die('Ошибка безопасности');
+	}
+	$post_id = (int)$_POST['postId'];
+	$user = wp_get_current_user();
+
+	//Если в таблице в БД нет информации о добавленной статье, 
+	//то программа завершит работу
+	if(!mm_is_favorites($post_id)) wp_die();
+
+	//delete_user_meta() - удалить из таблицы wordpress.wp_usermeta  к-л данные о пользователе:
+	//2(user_id) 	mm_favotites(meta_key)-переменная 	6(meta_value)-id статьи
+	if (delete_user_meta($user->ID, 'mm_favotites', $post_id)){
+		wp_die('Удалено');
+	};
+	wp_die('Ошибка удаления');
+
+}
+
 
 //Проверяем, есть ли уже данные о избранной статье для конкретного юзера в 
 //wordpress.wp_usermeta
