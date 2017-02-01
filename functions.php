@@ -1,6 +1,41 @@
 <?php
 //file for all functions definitions
 
+function mm_favorites_dashboard_widget(){
+	wp_add_dashboard_widget('mm_favorites_dashboard', 'Ваш список избранного', 'mm_show_dashboard_widget');
+
+
+}
+
+//функция для добавления работы с виджетом
+function mm_show_dashboard_widget(){
+	$user = wp_get_current_user();
+	$favorites = get_user_meta($user->ID, 'mm_favotites');
+	if(!$favorites){
+		echo "Список избранного пока пуст";
+		return;
+
+	}
+	//$str=implode(',',$favorites);
+	//$mm_posts = get_posts(['include'=>$str]); для вывода, если нужно, любой инфо о посте (картинку, текста, ...)
+	//var_dump($mm_posts);
+	echo '<ul>';
+	foreach($favorites as $favorite)
+	{
+		echo '<li><a href="' .get_permalink($favorite).'">'.get_the_title($favorite).'</a></li>';
+		/*$data[$favorite]=
+		[
+			'title'=>get_the_title($favorite),
+			'link'=>get_permalink($favorite)
+		];*/
+	}
+	echo '</ul>';
+
+}
+
+
+
+
 /**
 *is_single() - we situated in post? yes or no
 *is_user_logged_in() - user logged in? yes or no

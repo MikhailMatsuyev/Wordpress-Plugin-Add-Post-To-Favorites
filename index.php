@@ -15,3 +15,6 @@ add_filter('the_content', 'mm_favorites_content');
 add_action('wp_enqueue_scripts', 'mm_favorites_scripts');
 add_action('wp_ajax_mm_add', 'wp_ajax_mm_add');
 add_action('wp_ajax_mm_del', 'wp_ajax_mm_del');
+
+//Регистрируем добавление нового виджета. Для этого вешаем на хук wp_dashboard_setup() нашу функцию mm_favorites_dashboard_widget()
+add_action('wp_dashboard_setup', 'mm_favorites_dashboard_widget');
