@@ -16,13 +16,20 @@ function mm_show_dashboard_widget(){
 		return;
 
 	}
+	$img_src=plugins_url('img/loader.gif', __FILE__);
 	//$str=implode(',',$favorites);
 	//$mm_posts = get_posts(['include'=>$str]); для вывода, если нужно, любой инфо о посте (картинку, текста, ...)
 	//var_dump($mm_posts);
 	echo '<ul>';
 	foreach($favorites as $favorite)
 	{
-		echo '<li><a href="' .get_permalink($favorite).'">'.get_the_title($favorite).'</a></li>';
+
+		echo '<li>
+				<a href="' .get_permalink($favorite).'">'.get_the_title($favorite).'</a>
+				<span><a href="#" data-post="'.$favorite.'" class = "mm-favorites-del">&#10008;</a></span>
+				
+				<span class="mm-favorites-hidden"><img src="'.$img_src.'"></span>
+			 </li>';
 		/*$data[$favorite]=
 		[
 			'title'=>get_the_title($favorite),
@@ -53,6 +60,25 @@ function mm_favorites_content($content)
 
 	return '<p class="mm-favorites-link"><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span><a data-action ="add" href = "#">Добавить в избранное</a></p>' . $content;
 }
+
+//Для подключения скриптов и стилей только дл ядминской части только для главной страницы (для нее стартовый файл index.php). Для других страниц админской части нужно подпирать var_dump($hook)
+function mm_favorites_admin_scripts($hook)
+{
+	//echo $hook - стартовый файл скрипта index.php и т.д.
+
+	if($hook!='index.php')return;
+	wp_enqueue_script('mm-favorites-admin-scripts', plugins_url('/js/mm-favorites-admin-scripts.js', __FILE__), array('jquery'),null,true);
+	wp_enqueue_style('mm-favorites-admin-style', plugins_url('/css/mm-favorites-admin-style.css', __FILE__));
+	//Проверить подключение скрипта так: создать файл, который подключаем, поместить там body{	color:red;} и перейти в админ часть. Часть текста будет красным.
+
+
+	//В админ части уже определена переменная ajaxurl = '/wp-admin/admin-ajax.php'; Проверить можно, перейдя в админ часть и нажав F12. В пользовательской части она не определена, поэтому нужно вручну ее добавлять
+	//mm-favorites-admin-scripts - имя файла
+	wp_localize_script('mm-favorites-admin-scripts', 'mmFavorites', ['nonce'=>wp_create_nonce('mm-favorites')]  );
+
+
+}
+
 
 function mm_favorites_scripts()
 {
