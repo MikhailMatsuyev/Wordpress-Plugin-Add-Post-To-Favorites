@@ -20,17 +20,23 @@ jQuery(document).ready(function($){
      		},
      		beforeSend: function(){
      			$('.mm-favorites-link a').fadeOut(300, function(){
-     				$('.mm-favorites-hidden').fadeIn();     				
+     				$('.mm-favorites-link .mm-favorites-hidden').fadeIn();     				
      			});
      		},
      		success: function(res)
      		{
-     			$('.mm-favorites-link').html(res);
+                    $('.mm-favorites-link .mm-favorites-hidden').fadeOut(300, function(){
+     			  $('mm-favorites-link').html(res);
+                      if(action=='del'){
+                         $('.widget_mm-favorites-widget').find('li.cat-item-'+mmFavorites.postId).remove();
+                      }
      			//console.log(res);
+                     });
      		},
+
      		error: function()
      		{
-     			alert('Ошибка');
+     			alert('Error');
      		}
      	});
 

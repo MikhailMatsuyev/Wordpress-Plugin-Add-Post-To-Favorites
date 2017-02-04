@@ -2,7 +2,7 @@
 //file for all functions definitions
 
 function mm_favorites_dashboard_widget(){
-	wp_add_dashboard_widget('mm_favorites_dashboard', 'Ваш список избранного', 'mm_show_dashboard_widget');
+	wp_add_dashboard_widget('mm_favorites_dashboard', 'Your List of Favorites', 'mm_show_dashboard_widget');
 
 
 }
@@ -11,8 +11,12 @@ function mm_favorites_dashboard_widget(){
 function mm_show_dashboard_widget(){
 	$user = wp_get_current_user();
 	$favorites = get_user_meta($user->ID, 'mm_favotites');
+	$favorites = array_reverse($favorites);
+
+
+
 	if(!$favorites){
-		echo "Список избранного пока пуст";
+		echo "List of Favorites is empty";
 		return;
 
 	}
@@ -24,9 +28,9 @@ function mm_show_dashboard_widget(){
 	foreach($favorites as $favorite)
 	{
 
-		echo '<li>
+		echo '<li class="cat-item cat-item-'.$favorite.'">
 				<a href="' .get_permalink($favorite).'">'.get_the_title($favorite).'</a>
-				<span><a href="#" data-post="'.$favorite.'" class = "mm-favorites-del">&#10008;</a></span>
+				<span><a href="#" data-post="'.$favorite.'" class = "mm-favorites-del"><!--&#10008;--></a></span>
 				
 				<span class="mm-favorites-hidden"><img src="'.$img_src.'"></span>
 			 </li>';
@@ -37,6 +41,7 @@ function mm_show_dashboard_widget(){
 		];*/
 	}
 	echo '</ul>';
+	//echo '<div class="mm-favorites-del-all"><button class="button" id="mm-favorites-del-all">Очистить список </button><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span></div> ';-->
 
 }
 
@@ -54,11 +59,11 @@ function mm_favorites_content($content)
 
 	global $post;
 	if(mm_is_favorites($post->ID)){
-		return '<p class="mm-favorites-link"><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span><a data-action ="del" href = "#">Удалить из избранного</a></p>' . $content;
+		return '<p class="mm-favorites-link"><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span><a data-action ="del" href = "#">Remove from Favorites</a></p>' . $content;
 	}
 
 
-	return '<p class="mm-favorites-link"><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span><a data-action ="add" href = "#">Добавить в избранное</a></p>' . $content;
+	return '<p class="mm-favorites-link"><span class="mm-favorites-hidden"><img src="'.$img_src.'"></span><a data-action ="add" href = "#">Add to Favorites</a></p>' . $content;
 }
 
 //Для подключения скриптов и стилей только дл ядминской части только для главной страницы (для нее стартовый файл index.php). Для других страниц админской части нужно подпирать var_dump($hook)
@@ -82,7 +87,7 @@ function mm_favorites_admin_scripts($hook)
 
 function mm_favorites_scripts()
 {
-	if(!is_single() || !is_user_logged_in()) return;
+	if(!is_user_logged_in()) return;
 	//wp_enqueue_script() - Правильно подключает скрипт (JavaScript файл) на страницу.
 	//script - script.js
 	//plugins_url - Получает URL на директорию плагинов (без слэша на конце)
@@ -113,7 +118,7 @@ function wp_ajax_mm_add()
 {
 	//Проверяем на совпадение секретной строки после AJAX запроса на сервер
 	if(!wp_verify_nonce($_POST['security'], 'mm-favorites')){
-		wp_die('Ошибка безопасности');
+		wp_die('Safety error!');
 	}
 	$post_id = (int)$_POST['postId'];
 	$user = wp_get_current_user();
@@ -125,17 +130,34 @@ function wp_ajax_mm_add()
 	//add_user_meta() - добавить в таблицу wordpress.wp_usermeta  к-л данные о пользователе:
 	//2(user_id) 	mm_favotites(meta_key)-переменная 	6(meta_value)-id статьи
 	if (add_user_meta($user->ID, 'mm_favotites', $post_id)){
-		wp_die('Пост добавлен в избранное!');
+		wp_die('Post has been added to Favorites!');
 	};
-	wp_die('Запрос завершен');
+	wp_die('Query finished');
 
+}
+
+//функция-экшен удаления всех статей из избранного (в ajax - запросе: action: 'mm_del_all',)
+function wp_ajax_mm_del_all()
+{
+	if(!wp_verify_nonce($_POST['security'], 'mm-favorites')){
+		wp_die('Safety error');
+	}
+	//print_r($_POST);
+	//wp_die();
+	$user = wp_get_current_user();
+	//var_dump($user->ID);
+	if(delete_metadata('user', $user->ID, "mm_favorites")){
+		wp_die('List is clear');
+	}else{
+		wp_die('Removing error');
+	}
 }
 
 function wp_ajax_mm_del()
 {
 	//Проверяем на совпадение секретной строки после AJAX запроса на сервер
 	if(!wp_verify_nonce($_POST['security'], 'mm-favorites')){
-		wp_die('Ошибка безопасности');
+		wp_die('Safety error!');
 	}
 	$post_id = (int)$_POST['postId'];
 	$user = wp_get_current_user();
@@ -147,9 +169,9 @@ function wp_ajax_mm_del()
 	//delete_user_meta() - удалить из таблицы wordpress.wp_usermeta  к-л данные о пользователе:
 	//2(user_id) 	mm_favotites(meta_key)-переменная 	6(meta_value)-id статьи
 	if (delete_user_meta($user->ID, 'mm_favotites', $post_id)){
-		wp_die('Удалено');
+		wp_die('Removed');
 	};
-	wp_die('Ошибка удаления');
+	wp_die('Removing error');
 
 }
 

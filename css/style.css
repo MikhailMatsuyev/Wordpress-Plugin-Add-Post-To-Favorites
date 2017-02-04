@@ -15,3 +15,21 @@ p.mm-favorites-link a:hover{
 .mm-favorites-hidden{
 	display: none;
 }
+
+.mm-favorites-del{
+	color:red;
+	font-weight: bold;
+}	
+.mm-favorites-hidden{
+	display: none;
+	
+}	
+
+.widget_mm-favorites-widget ul{
+	list-style: none;
+}
+
+.mm-favorites-del:hover{
+	color:red;
+	
+}	
